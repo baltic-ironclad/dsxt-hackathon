@@ -1,0 +1,12 @@
+{% block body %}
+{% if not session['logged_in'] %}
+<head>
+    <title>Login</title>
+</head>
+<form action="/login" method="POST">
+    <input type="username" name="username" placeholder="Username">
+    <input type="password" name="password" placeholder="Password">
+    <input type="submit" value="Log in">
+</form>
+{% endif %}
+{% endblock %}
