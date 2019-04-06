@@ -24,7 +24,7 @@ def send():
     return render_template('send.html')
 
 
-@app.route('/register', methods=['GET'])
+@app.route('/register')
 def register():
     user = {
         'username': str(request.form['username']),
