@@ -45,8 +45,19 @@ public:
 		_size -= dealSize;
 	}
 
-	bool operator<(Order& order) {
-		
+	bool operator<(Order& order) const {
+		if (_price < order._price) {
+			return true;
+		}
+		else if (_price > order._price) {
+			return false;
+		}
+		else if (_time < order._time) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }
 
@@ -56,10 +67,19 @@ class ContractRequest {
 	int _price;
 	int _size;
 
+
 public:
 	ContractRequest(buyInfo, sellInfo, price, size): _buyerInformation(buyInfo), _sellerInformation(sellInfo), _price(price), _size(size) {}
 
-	int send() {}
+
+	//Это ещё предстоит сделать, здесь просто фигня для дебага всякого
+	int send() {
+		std::cout << "Buyer: " << _buyerInformation << std::endl;
+		std::cout << "Seller: " << _buyerInformation << std::endl;
+		std::cout << "Price: " << _buyerInformation << std::endl;
+		std::cout << "Size: " << _buyerInformation << std::endl;
+
+	}
 };
 
 bool matchOrders(Order& buyer, Order& seller) {
