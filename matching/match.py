@@ -1,4 +1,5 @@
 from bintrees import FastRBTree
+import time
 
 buy_orders = FastRBTree()
 sell_orders = FastRBTree()
@@ -10,8 +11,8 @@ SELL = True
 
 class Order:
 
-	__init__(user, price, size, direction):
-		self.time = __TIMESTAMP__
+	def __init__(self, user, price, size, direction):
+		self.time = time.time()
 		self.user = user
 		self.price = price
 		self.size = size
@@ -20,13 +21,13 @@ class Order:
 
 class ContractRequest:
 
-	__init__(buyer, seller, price, size):
+	def __init__(buyer, seller, price, size):
 		self.buyer = buyer
 		self.seller = seller
 		self.price = price
 		self.size = size
 
-		send():
+	def send():
 			pass
 
 def matchOrders(buyer, seller):
@@ -61,4 +62,67 @@ def handleNewOrder(new_order):
 					if order.size == 0:
 						sell_orders.pop()
 				break
-			)
+			else: 
+				break
+
+		if not executed:
+			buy_orders.insert(new_order)
+	else:
+		if not sell_orders.is_empty() and new_order.price >= min(buy_orders).price:
+			sell_orders.insert(new_order)
+			return
+
+		executed = False
+
+		for index, order in enumerate(buy_orders):
+			if matchOrders(order, new_order):
+				dealSize = min(order.size, new_order.size)
+				
+				request = ContractRequest(order.user, 
+					new_order.user, order.price, dealSize)
+
+				request.send()
+
+				new_order -= dealSize
+
+				order -= dealSize
+
+				if new_order.size == 0:
+					executed = true
+					if order.size == 0:
+						sell_orders.pop()
+				break
+			else: 
+				break
+
+		if not executed:
+			sell_orders.insert(new_order)
+
+def print_tree(tree, name):
+	print(name)
+	for elem in tree:
+		print(elem)
+
+if __name__ == "__main__":
+	order1 = Order(10, 1000, 1, False)
+	order1 = Order(11, 1000, 3, True)
+	time.sleep(2)
+	order1 = Order(12, 900, 2, True)
+	order1 = Order(14, 1000, 3, False) 
+
+	handleNewOrder(order1)
+	print_tree(buy_orders, "buy_orders")
+	print_tree(sell_orders, "sell_orders")
+
+	handleNewOrder(order2)
+	print_tree(buy_orders, "buy_orders")
+	print_tree(sell_orders, "sell_orders")
+	
+	handleNewOrder(order3)
+	print_tree(buy_orders, "buy_orders")
+	print_tree(sell_orders, "sell_orders")
+	
+	handleNewOrder(order4)
+	print_tree(buy_orders, "buy_orders")
+	print_tree(sell_orders, "sell_orders")
+	
