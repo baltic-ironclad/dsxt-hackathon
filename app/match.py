@@ -17,30 +17,38 @@ class Order:
     def __str__(self):
         return "{}, {}, {}".format(self.user, self.price, self.size)
 
+    def __lt__(self, other):
+        if self.price < other.price:
+            return True
+        elif self.price > other.price:
+            return False
+        elif self.time < other.time:
+            return True
+        else:
+            return False
+
 
 class ContractRequest:
-    def __init__(self, buyer, seller, price, size):
-        self.buyer = buyer
-        self.seller = seller
-        self.price = price
+    def __init__(self, order1, order2, size):
+        if order1.direction == BUY:
+            self.buyer, self.seller = order1, order2
+        else:
+            self.buyer, self.seller = order2, order1
+        self.price = self.seller.price
         self.size = size
 
-    def send(self):
-        pass
+    def __str__(self):
+        return "{}, {}, {}, {}".format(self.buyer.user, self.seller.user,
+                                       self.price, self.size)
 
 
 def match_orders(order1, order2):
-    if order1 == BUY:
-        buyer = order1
-        seller = order2
+    if order1.direction == BUY:
+        buyer, seller = order1, order2
     else:
-        buyer = order2
-        seller = order1
+        buyer, seller = order2, order1
 
-    if seller.price > buyer.price:
-        return False
-    else:
-        return True
+    return seller.price <= buyer.price
 
 
 def handle_new_order(new_order):
@@ -52,21 +60,23 @@ def handle_new_order(new_order):
         orders_list2 = sell_orders
 
     else:
-        if len(sell_orders) != 0 and new_order.price >= min(buy_orders).price:
+        if len(sell_orders) != 0 and new_order.price >= min(sell_orders).price:
             sell_orders.append(new_order)
             return
         orders_list1 = sell_orders
         orders_list2 = buy_orders
 
-
     executed = False
 
-    for index, order in enumerate(orders_list2):
+    while len(orders_list2) > 0:
+        order = min(orders_list2) if new_order.direction == BUY else max(orders_list2)
         if match_orders(new_order, order):
-            dealSize = min(new_order.size, order.size)
 
-            request = ContractRequest(new_order.user, order.user, order.price, dealSize)
-            request.send()
+            dealSize = min(new_order.size, order.size)
+            print("dealsize:", dealSize, new_order.size, order.size)
+
+            request = ContractRequest(new_order, order, dealSize)
+            print(request)
 
             new_order.size -= dealSize
             order.size -= dealSize
@@ -74,40 +84,11 @@ def handle_new_order(new_order):
             if new_order.size == 0:
                 executed = True
                 if order.size == 0:
-                    orders_list2.pop(index)
+                    orders_list2.remove(order)
                 break
+            orders_list2.remove(order)
         else:
             break
 
     if not executed:
         orders_list1.append(new_order)
-
-
-def print_tree(tree, name):
-    print(name)
-    for element in tree:
-        print(element)
-
-
-if __name__ == "__main__":
-    order1 = Order(10, 1000, 1, False)
-    order2 = Order(11, 1000, 3, True)
-    time.sleep(2)
-    order3 = Order(12, 900, 2, True)
-    order4 = Order(14, 1000, 3, False)
-
-    handle_new_order(order1)
-    print_tree(buy_orders, "buy_orders")
-    print_tree(sell_orders, "sell_orders")
-
-    handle_new_order(order2)
-    print_tree(buy_orders, "buy_orders")
-    print_tree(sell_orders, "sell_orders")
-
-    handle_new_order(order3)
-    print_tree(buy_orders, "buy_orders")
-    print_tree(sell_orders, "sell_orders")
-
-    handle_new_order(order4)
-    print_tree(buy_orders, "buy_orders")
-    print_tree(sell_orders, "sell_orders")

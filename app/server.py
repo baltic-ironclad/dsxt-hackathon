@@ -6,6 +6,7 @@ import web3
 from web3 import Web3
 from solc import compile_source
 from web3.contract import ConciseContract
+from match import Order, handle_new_order
 
 
 class Storage:
@@ -69,7 +70,15 @@ def main(database):
                 raw += received
         finally:
             data = json.loads(raw.decode('utf-8'))
-            database.update(data)
+            order = Order(
+                data['hash'],
+                int(data['price']),
+                int(data['amount']),
+                data['direction'] == 'SELL'
+            )
+            handle_new_order(order)
+            # print(data)
+            # database.update(data)
             connection.close()
 
 
