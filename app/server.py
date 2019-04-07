@@ -1,7 +1,6 @@
 import socket
 import json
 import os
-import sys
 import web3
 
 from web3 import Web3
@@ -38,14 +37,25 @@ class Storage:
         self.write()
 
 
-def launch_transaction():
+def deploy_contract():
+    with open('contract.sol', 'r') as contract_file:
+        contract = contract_file.read()
+    compiled = compile_source(contract)
+    # TODO: Work with contract
+
+
+def start_matching():
+    pass
+
+
+def start_transaction():
     pass
 
 
 def main(database):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(('localhost', 8080))
-    server.listen(4)
+    server.listen(100)
 
     while True:
         connection, address = server.accept()
