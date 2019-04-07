@@ -1,21 +1,67 @@
 import socket
 import json
+import os
+import web3
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('localhost', 8080))
-server.listen(1)
+from web3 import Web3
+from solc import compile_source
+from web3.contract import ConciseContract
 
-while True:
-    connection, address = server.accept()
-    raw = b''
 
-    try:
-        while True:
-            received = connection.recv(4096)
-            if not received:
+class Storage:
+    def __init__(self):
+        self.path = 'users.json'
+
+        if os.path.exists(self.path):
+            self.load()
+        else:
+            self.data = []
+            self.write()
+
+    def load(self):
+        with open(self.path, 'r') as storage:
+            self.data = json.load(storage)
+
+    def write(self):
+        with open(self.path, 'w') as storage:
+            json.dump(self.data, storage, indent=4)
+
+    def update(self, new):
+        for item in self.data:
+            if item['address'] == new['hash']:
                 break
-            raw += received
-    finally:
-        data = json.loads(raw.decode('utf-8'))
-        connection.close()
-        print(data)
+        self.data.append({
+            'id': self.data[-1]['id'] + 1 if len(self.data) != 0 else 1,
+            'address': new['hash']
+        })
+        self.write()
+
+
+def launch_transaction():
+    pass
+
+
+def main(database):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(('localhost', 8080))
+    server.listen(4)
+
+    while True:
+        connection, address = server.accept()
+        raw = b''
+
+        try:
+            while True:
+                received = connection.recv(4096)
+                if not received:
+                    break
+                raw += received
+        finally:
+            data = json.loads(raw.decode('utf-8'))
+            database.update(data)
+            connection.close()
+
+
+if __name__ == '__main__':
+    database = Storage()
+    main(database)
