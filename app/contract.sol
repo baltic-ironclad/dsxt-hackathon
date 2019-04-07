@@ -1,5 +1,5 @@
 pragma solidity >=0.4.22 <0.7.0;
-contract Exchange {
+contract Exchange{
     event TransferDollar(address indexed from, address indexed to, uint256 value);
     event TransferBitcoin(address indexed from, address indexed to, uint256 value);
     event Deal(address indexed from, address indexed to, uint256 val1, uint256 val2);
@@ -29,5 +29,5 @@ contract Exchange {
         transfer2(_with, _from, val2);
         emit Deal(_from, _with, val1, val2);
     }
-}
+}      
 }      
