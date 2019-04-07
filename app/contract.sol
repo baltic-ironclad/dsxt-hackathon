@@ -5,18 +5,12 @@ contract Exchange{
     event Deal(address indexed from, address indexed to, uint256 val1, uint256 val2);
     mapping (address => uint256) public balanceDollars;
     mapping (address => uint256) public balanceBCS;
-    function setDollarBal(address _pi, uint256 x)public{
-        balanceDollars[_pi] = x;
+    mapping (address => uint256) public hash;
+    
+    function GiveHASH(uint256 a) public{
+        hash[msg.sender] = a;
     }
-    function setBCBal(address _pi, uint256 x)public{
-        balanceBCS[_pi] = x;
-    }
-    //function tellDB(address _pi)public view returns (uint256 res){
-      //  return balanceDollars[_pi];
-    //}                                       //we may call balance instead
-    //function tellBB(address _pi)public view returns (uint256 res){
-      //  return balanceBCS[_pi];
-    //}
+    
     function transfer1(address _from, address _to, uint256 _value) internal{
         require(balanceDollars[_from]>=_value && balanceDollars[_to] + _value >= balanceDollars[_to]);
         balanceDollars[_from]-=_value;
@@ -29,9 +23,11 @@ contract Exchange{
         balanceBCS[_to] += _value;
         emit TransferBitcoin(_from, _to, _value);
     }
-    function exchange(address _from, address _with, uint256 val1, uint256 val2)public{
+    function exchange(address _from, address _with, uint256 val1, uint256 val2, uint256 hash1, uint256 hash2)public{
+        require(hash1 == hash[_from] && hash2 == hash[_with], "Something went wrong");
         transfer1(_from, _with, val1);
         transfer2(_with, _from, val2);
         emit Deal(_from, _with, val1, val2);
     }
+}      
 }      
