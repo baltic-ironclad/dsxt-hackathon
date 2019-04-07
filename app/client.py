@@ -1,5 +1,6 @@
 import socket
 import json
+import sys
 
 from tkinter import *
 from eth_hash.auto import keccak
