@@ -44,6 +44,14 @@ def deploy_contract():
     compiled = compile_source(contract)
     # TODO: Work with contract
 
+    contract_id, contract_interface = compiled.popitem()
+
+    contract_hash = w3.eth.contract(
+       abi=contract_interface['abi'],
+       bytecode=contract_interface['bin']).deploy()
+
+    address = w3.eth.getTransactionReceipt(contract_hash)['contractAddress']
+
 
 def start_matching():
     pass
