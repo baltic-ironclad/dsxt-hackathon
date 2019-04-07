@@ -1,24 +1,39 @@
 import os
+import json
 
 from flask import Flask
 from flask import flash, render_template, request, session
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from sqlalchemy.exc import OperationalError
 
-from table import *
+with open('database.json', 'r') as database:
+    data = json.load(database)
 
-engine = create_engine('sqlite:///stock.db', echo=True)
 app = Flask(__name__)
 
 
 @app.route('/')
 @app.route('/index')
 def home():
-    if not session.get('logged_in'):
+    if session.get('logged_in'):
         return render_template('base.html')
     else:
         return render_template('login.html')
+
+
+@app.route('/send')
+def send():
+    return render_template('send.html')
+
+
+@app.route('/register')
+def register():
+    user = {
+        'username': str(request.form['username']),
+        'password': str(request.form['password'])
+    }
+    data.append(user)
+    with open('database.json', 'a') as database:
+        json.dump(data, database)
+    return home()
 
 
 @app.route('/logout')
@@ -32,16 +47,12 @@ def login():
     POST_USERNAME = str(request.form['username'])
     POST_PASSWORD = str(request.form['password'])
 
-    Session = sessionmaker(bind=engine)
-    s = Session()
-
-    query = s.query(User).filter(User.username.in_(POST_USERNAME),
-                                 User.password.in_(POST_PASSWORD))
-    try:
-        if query.first():
+    for user in data:
+        if user['username'] == POST_USERNAME and user['password'] == POST_PASSWORD:
             session['logged_in'] = True
-    except OperationalError:
-        flash('User does not exist')
+    if not session['logged_in']:
+        flash('Wrong password')
+
     return home()
 
 
