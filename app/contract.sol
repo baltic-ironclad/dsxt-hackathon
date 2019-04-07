@@ -29,5 +29,5 @@ contract Exchange{
         transfer2(_with, _from, val2);
         emit Deal(_from, _with, val1, val2);
     }
-}      
+ }      
 }      
